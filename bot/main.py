@@ -78,6 +78,29 @@ async def ram_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(message)
 
+async def disk_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    Handler دستور /disk
+    """
+
+    # خواندن اطلاعات درایو C در ویندوز
+    disk = psutil.disk_usage("C:\\")
+
+    total_gb = disk.total / (1024 ** 3)
+    used_gb = disk.used / (1024 ** 3)
+    free_gb = disk.free / (1024 ** 3)
+    percent = disk.percent
+
+    message = (
+        "💾 Disk Status\n\n"
+        f"Usage: {percent}%\n"
+        f"Used: {used_gb:.2f} GB\n"
+        f"Free: {free_gb:.2f} GB\n"
+        f"Total: {total_gb:.2f} GB"
+    )
+
+    await update.message.reply_text(message)
+
 
 def main():
     """
@@ -96,6 +119,7 @@ def main():
     app.add_handler(CommandHandler("help", help_command))
     app.add_handler(CommandHandler("cpu", cpu_command))
     app.add_handler(CommandHandler("ram", ram_command))
+    app.add_handler(CommandHandler("disk", disk_command))
 
     print("DevOps Telegram Bot is running...")
 

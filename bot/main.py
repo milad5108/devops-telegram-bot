@@ -128,6 +128,48 @@ async def uptime_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(message)
 
+async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    Handler دستور /status
+    """
+
+    # CPU
+    cpu = psutil.cpu_percent(interval=1)
+
+    # RAM
+    memory = psutil.virtual_memory()
+
+    # Disk (Windows)
+    disk = psutil.disk_usage("C:\\")
+
+    # Uptime
+    boot_time = datetime.datetime.fromtimestamp(psutil.boot_time())
+    uptime = datetime.datetime.now() - boot_time
+
+    days = uptime.days
+    hours = uptime.seconds // 3600
+    minutes = (uptime.seconds % 3600) // 60
+
+    message = (
+        "🤖 DevOps Server Status\n\n"
+        "🖥 CPU\n"
+        f"Usage: {cpu}%\n\n"
+
+        "🧠 RAM\n"
+        f"Usage: {memory.percent}%\n"
+        f"Used: {memory.used / (1024 ** 3):.2f} GB / "
+        f"{memory.total / (1024 ** 3):.2f} GB\n\n"
+
+        "💾 Disk\n"
+        f"Usage: {disk.percent}%\n"
+        f"Free: {disk.free / (1024 ** 3):.2f} GB\n\n"
+
+        "⏳ Uptime\n"
+        f"{days} Days {hours} Hours {minutes} Minutes"
+    )
+
+    await update.message.reply_text(message)
+
 
 def main():
     """
@@ -148,6 +190,7 @@ def main():
     app.add_handler(CommandHandler("ram", ram_command))
     app.add_handler(CommandHandler("disk", disk_command))
     app.add_handler(CommandHandler("uptime", uptime_command))
+    app.add_handler(CommandHandler("status", status_command))
 
     print("DevOps Telegram Bot is running...")
 

@@ -43,11 +43,12 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 """
 
     await update.message.reply_text(help_text)
+
+
 async def cpu_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     Handler دستور /cpu
     """
-
     cpu_usage = psutil.cpu_percent(interval=1)
 
     message = (
@@ -56,6 +57,27 @@ async def cpu_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     await update.message.reply_text(message)
+
+
+async def ram_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    Handler دستور /ram
+    """
+    memory = psutil.virtual_memory()
+
+    total_gb = memory.total / (1024 ** 3)
+    used_gb = memory.used / (1024 ** 3)
+    percent = memory.percent
+
+    message = (
+        "🧠 RAM Status\n\n"
+        f"Usage: {percent}%\n"
+        f"Used: {used_gb:.2f} GB\n"
+        f"Total: {total_gb:.2f} GB"
+    )
+
+    await update.message.reply_text(message)
+
 
 def main():
     """
@@ -73,6 +95,7 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_command))
     app.add_handler(CommandHandler("cpu", cpu_command))
+    app.add_handler(CommandHandler("ram", ram_command))
 
     print("DevOps Telegram Bot is running...")
 

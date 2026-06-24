@@ -1,5 +1,7 @@
 import os
+import datetime
 import psutil
+
 
 from dotenv import load_dotenv
 from telegram import Update
@@ -101,6 +103,31 @@ async def disk_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(message)
 
+async def uptime_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    Handler دستور /uptime
+    """
+
+    boot_time = psutil.boot_time()
+
+    boot_datetime = datetime.datetime.fromtimestamp(boot_time)
+
+    uptime = datetime.datetime.now() - boot_datetime
+
+    days = uptime.days
+    hours, remainder = divmod(uptime.seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+
+    message = (
+        "⏳ System Uptime\n\n"
+        f"Days: {days}\n"
+        f"Hours: {hours}\n"
+        f"Minutes: {minutes}\n"
+        f"Seconds: {seconds}"
+    )
+
+    await update.message.reply_text(message)
+
 
 def main():
     """
@@ -120,6 +147,7 @@ def main():
     app.add_handler(CommandHandler("cpu", cpu_command))
     app.add_handler(CommandHandler("ram", ram_command))
     app.add_handler(CommandHandler("disk", disk_command))
+    app.add_handler(CommandHandler("uptime", uptime_command))
 
     print("DevOps Telegram Bot is running...")
 

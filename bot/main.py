@@ -13,6 +13,8 @@ load_dotenv()
 
 # گرفتن Token از Environment Variable
 TOKEN = os.getenv("BOT_TOKEN")
+CHAT_ID = int(os.getenv("CHAT_ID"))
+
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -170,6 +172,35 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(message)
 
+async def id_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    Handler دستور /id
+    """
+
+    chat_id = update.effective_chat.id
+
+    message = (
+        "🆔 Telegram Chat ID\n\n"
+        f"Your Chat ID: {chat_id}"
+    )
+
+    await update.message.reply_text(message)
+
+async def send_test_alert(app):
+    """
+    ارسال پیام تست Alert
+    """
+
+    message = (
+        "🚨 TEST ALERT\n\n"
+        "DevOps Monitoring Bot is online ✅"
+    )
+
+    await app.bot.send_message(
+        chat_id=CHAT_ID,
+        text=message
+    )
+
 
 def main():
     """
@@ -181,7 +212,12 @@ def main():
         raise ValueError("BOT_TOKEN not found in .env file")
 
     # ساخت Application تلگرام
-    app = Application.builder().token(TOKEN).build()
+    app = (
+    Application.builder()
+    .token(TOKEN)
+    .post_init(send_test_alert)
+    .build()
+)
 
     # ثبت دستورات
     app.add_handler(CommandHandler("start", start))
@@ -191,6 +227,7 @@ def main():
     app.add_handler(CommandHandler("disk", disk_command))
     app.add_handler(CommandHandler("uptime", uptime_command))
     app.add_handler(CommandHandler("status", status_command))
+    app.add_handler(CommandHandler("id", id_command))
 
     print("DevOps Telegram Bot is running...")
 

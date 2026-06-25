@@ -1,5 +1,6 @@
 import os
 import datetime
+import asyncio
 import psutil
 
 
@@ -14,6 +15,7 @@ load_dotenv()
 # گرفتن Token از Environment Variable
 TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = int(os.getenv("CHAT_ID"))
+cpu_alert_sent = False
 
 
 
@@ -202,6 +204,58 @@ async def send_test_alert(app):
     )
 
 
+async def cpu_alert_monitor(app):
+    global cpu_alert_sent
+
+    while True:
+
+        cpu_usage = psutil.cpu_percent(interval=1)
+
+        # ارسال هشدار
+        if cpu_usage > 80 and not cpu_alert_sent:
+
+            message = (
+                "🚨 HIGH CPU ALERT\n\n"
+                f"CPU Usage: {cpu_usage}%\n\n"
+                "Server is under high load!"
+            )
+
+            await app.bot.send_message(
+                chat_id=CHAT_ID,
+                text=message
+            )
+
+            cpu_alert_sent = True
+
+        # ارسال پیام Recovery
+        elif cpu_usage < 60 and cpu_alert_sent:
+
+            message = (
+                "✅ CPU RECOVERED\n\n"
+                f"Current CPU Usage: {cpu_usage}%"
+            )
+
+            await app.bot.send_message(
+                chat_id=CHAT_ID,
+                text=message
+            )
+
+            cpu_alert_sent = False
+
+        await asyncio.sleep(10)
+
+async def startup(app):
+    """
+    اجرا هنگام بالا آمدن ربات
+    """
+
+    await send_test_alert(app)
+
+    app.create_task(
+        cpu_alert_monitor(app)
+    )
+
+
 def main():
     """
     راه‌اندازی ربات
@@ -215,7 +269,7 @@ def main():
     app = (
     Application.builder()
     .token(TOKEN)
-    .post_init(send_test_alert)
+    .post_init(startup)
     .build()
 )
 

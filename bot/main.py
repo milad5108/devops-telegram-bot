@@ -15,8 +15,19 @@ load_dotenv()
 # گرفتن Token از Environment Variable
 TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = int(os.getenv("CHAT_ID"))
-cpu_alert_sent = False
 
+CPU_ALERT_THRESHOLD = int(os.getenv("CPU_ALERT_THRESHOLD"))
+CPU_RECOVERY_THRESHOLD = int(os.getenv("CPU_RECOVERY_THRESHOLD"))
+
+RAM_ALERT_THRESHOLD = int(os.getenv("RAM_ALERT_THRESHOLD"))
+RAM_RECOVERY_THRESHOLD = int(os.getenv("RAM_RECOVERY_THRESHOLD"))
+
+DISK_ALERT_THRESHOLD = int(os.getenv("DISK_ALERT_THRESHOLD"))
+DISK_RECOVERY_THRESHOLD = int(os.getenv("DISK_RECOVERY_THRESHOLD"))
+
+cpu_alert_sent = False
+ram_alert_sent = False
+disk_alert_sent = False
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -212,7 +223,7 @@ async def cpu_alert_monitor(app):
         cpu_usage = psutil.cpu_percent(interval=1)
 
         # ارسال هشدار
-        if cpu_usage > 80 and not cpu_alert_sent:
+        if cpu_usage > CPU_ALERT_THRESHOLD and not cpu_alert_sent:
 
             message = (
                 "🚨 HIGH CPU ALERT\n\n"
@@ -228,7 +239,7 @@ async def cpu_alert_monitor(app):
             cpu_alert_sent = True
 
         # ارسال پیام Recovery
-        elif cpu_usage < 60 and cpu_alert_sent:
+        elif cpu_usage < CPU_RECOVERY_THRESHOLD and cpu_alert_sent:
 
             message = (
                 "✅ CPU RECOVERED\n\n"
@@ -244,6 +255,88 @@ async def cpu_alert_monitor(app):
 
         await asyncio.sleep(10)
 
+async def ram_alert_monitor(app):
+    global ram_alert_sent
+
+    while True:
+
+        memory = psutil.virtual_memory()
+        ram_usage = memory.percent
+
+        # Alert
+        if ram_usage > RAM_ALERT_THRESHOLD and not ram_alert_sent:
+
+            message = (
+                "🚨 HIGH RAM ALERT\n\n"
+                f"RAM Usage: {ram_usage}%\n\n"
+                "Memory usage is critically high!"
+            )
+
+            await app.bot.send_message(
+                chat_id=CHAT_ID,
+                text=message
+            )
+
+            ram_alert_sent = True
+
+        # Recovery
+        elif ram_usage < RAM_RECOVERY_THRESHOLD and ram_alert_sent:
+
+            message = (
+                "✅ RAM RECOVERED\n\n"
+                f"Current RAM Usage: {ram_usage}%"
+            )
+
+            await app.bot.send_message(
+                chat_id=CHAT_ID,
+                text=message
+            )
+
+            ram_alert_sent = False
+
+        await asyncio.sleep(10)
+
+async def disk_alert_monitor(app):
+    global disk_alert_sent
+
+    while True:
+
+        disk = psutil.disk_usage("C:\\")
+        disk_usage = disk.percent
+
+        # Alert
+        if disk_usage > DISK_ALERT_THRESHOLD and not disk_alert_sent:
+
+            message = (
+                "🚨 HIGH DISK ALERT\n\n"
+                f"Disk Usage: {disk_usage}%\n\n"
+                "Disk space is running low!"
+            )
+
+            await app.bot.send_message(
+                chat_id=CHAT_ID,
+                text=message
+            )
+
+            disk_alert_sent = True
+
+        # Recovery
+        elif disk_usage < DISK_RECOVERY_THRESHOLD and disk_alert_sent:
+
+            message = (
+                "✅ DISK RECOVERED\n\n"
+                f"Current Disk Usage: {disk_usage}%"
+            )
+
+            await app.bot.send_message(
+                chat_id=CHAT_ID,
+                text=message
+            )
+
+            disk_alert_sent = False
+
+        await asyncio.sleep(10)
+
 async def startup(app):
     """
     اجرا هنگام بالا آمدن ربات
@@ -253,6 +346,14 @@ async def startup(app):
 
     app.create_task(
         cpu_alert_monitor(app)
+    )
+
+    app.create_task(
+        ram_alert_monitor(app)
+    )
+
+    app.create_task(
+     disk_alert_monitor(app)
     )
 
 

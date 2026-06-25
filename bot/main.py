@@ -2,6 +2,7 @@ import os
 import datetime
 import asyncio
 import psutil
+import logging
 
 
 from dotenv import load_dotenv
@@ -11,6 +12,13 @@ from telegram.ext import Application, CommandHandler, ContextTypes
 
 # خواندن فایل .env
 load_dotenv()
+logging.basicConfig(
+    filename="logs/bot.log",
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s"
+)
+
+logger = logging.getLogger(__name__)
 
 # گرفتن Token از Environment Variable
 TOKEN = os.getenv("BOT_TOKEN")
@@ -214,6 +222,8 @@ async def send_test_alert(app):
         text=message
     )
 
+    logger.info("Bot started successfully")
+
 
 async def cpu_alert_monitor(app):
     global cpu_alert_sent
@@ -237,6 +247,7 @@ async def cpu_alert_monitor(app):
             )
 
             cpu_alert_sent = True
+            logger.warning(f"High CPU Alert - Usage: {cpu_usage}%")
 
         # ارسال پیام Recovery
         elif cpu_usage < CPU_RECOVERY_THRESHOLD and cpu_alert_sent:
@@ -252,6 +263,7 @@ async def cpu_alert_monitor(app):
             )
 
             cpu_alert_sent = False
+            logger.info(f"CPU Recovered - Usage: {cpu_usage}%")
 
         await asyncio.sleep(10)
 
@@ -278,6 +290,7 @@ async def ram_alert_monitor(app):
             )
 
             ram_alert_sent = True
+            logger.warning(f"High RAM Alert - Usage: {ram_usage}%")
 
         # Recovery
         elif ram_usage < RAM_RECOVERY_THRESHOLD and ram_alert_sent:
@@ -293,6 +306,7 @@ async def ram_alert_monitor(app):
             )
 
             ram_alert_sent = False
+            logger.info(f"RAM Recovered - Usage: {ram_usage}%")
 
         await asyncio.sleep(10)
 
@@ -319,6 +333,7 @@ async def disk_alert_monitor(app):
             )
 
             disk_alert_sent = True
+            logger.warning(f"High Disk Alert - Usage: {disk_usage}%")
 
         # Recovery
         elif disk_usage < DISK_RECOVERY_THRESHOLD and disk_alert_sent:
@@ -334,6 +349,7 @@ async def disk_alert_monitor(app):
             )
 
             disk_alert_sent = False
+            logger.info(f"Disk Recovered - Usage: {disk_usage}%")
 
         await asyncio.sleep(10)
 

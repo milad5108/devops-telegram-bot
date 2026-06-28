@@ -1,0 +1,14 @@
+# Normalize text files to LF in Git
+* text=auto eol=lf
+
+# Python files
+*.py text eol=lf
+
+# Shell scripts
+*.sh text eol=lf
+
+# Markdown
+*.md text eol=lf
+
+# Environment examples
+*.env.example text eol=lf

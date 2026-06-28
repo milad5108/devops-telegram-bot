@@ -360,16 +360,16 @@ async def startup(app):
 
     await send_test_alert(app)
 
-    app.create_task(
+    asyncio.create_task(
         cpu_alert_monitor(app)
     )
 
-    app.create_task(
+    asyncio.create_task(
         ram_alert_monitor(app)
     )
 
-    app.create_task(
-     disk_alert_monitor(app)
+    asyncio.create_task(
+        disk_alert_monitor(app)
     )
 
 

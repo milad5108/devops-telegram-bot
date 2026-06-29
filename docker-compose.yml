@@ -1,0 +1,10 @@
+﻿services:
+  bot:
+    build: .
+    image: devops-telegram-bot:latest
+    container_name: devops-telegram-bot
+    env_file:
+      - .env
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs

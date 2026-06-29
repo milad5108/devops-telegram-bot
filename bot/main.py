@@ -109,7 +109,7 @@ async def disk_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
 
     # خواندن اطلاعات درایو C در ویندوز
-    disk = psutil.disk_usage("C:\\")
+    disk = psutil.disk_usage("/")
 
     total_gb = disk.total / (1024 ** 3)
     used_gb = disk.used / (1024 ** 3)
@@ -163,7 +163,7 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     memory = psutil.virtual_memory()
 
     # Disk (Windows)
-    disk = psutil.disk_usage("C:\\")
+    disk = psutil.disk_usage("/")
 
     # Uptime
     boot_time = datetime.datetime.fromtimestamp(psutil.boot_time())
@@ -315,7 +315,7 @@ async def disk_alert_monitor(app):
 
     while True:
 
-        disk = psutil.disk_usage("C:\\")
+        disk = psutil.disk_usage("/")
         disk_usage = disk.percent
 
         # Alert

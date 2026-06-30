@@ -321,11 +321,11 @@ Completed:
 * GitHub Actions CI
 * CI badge in README
 * Environment example file
+* Project summary documentation
 
 Next steps:
 
 * Improve portfolio documentation
-* Add project summary documentation
 * Add optional deployment guide
 * Add Prometheus metrics endpoint
 * Add Grafana dashboard documentation
